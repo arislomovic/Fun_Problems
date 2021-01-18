@@ -1,0 +1,7 @@
+fun birthdayProblem(people: Int): Double {
+    var odds = 1.00
+    for (i in 0 until people) odds *= (365.00 - i) / 365.00
+    //Current odds are multiplied that nobody in the room has the same birthday as any other person (364/365 * 363/365...)
+    //So the numerator decreases by one with each additional person, to correlate with the amount of unoccupied days
+    return 1.00 - odds
+}

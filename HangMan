@@ -1,0 +1,33 @@
+fun play() {
+    val wordToGuess = getUserInput("Pick Word Max 10 Chars", wordRegex(5, 10))
+
+    val uniqueCharsInString = wordToGuess.toHashSet()
+    val hasGuessed = hashSetOf<Char>()
+
+    val amtIncorrect = { hasGuessed.count { !wordToGuess.contains(it) } }
+
+
+    while (amtIncorrect() < hangMan.size && hasGuessed.count { wordToGuess.contains(it) } < uniqueCharsInString.size) {
+        if (!wordToGuess.contains(getGuess(hasGuessed))) println(hangMan[amtIncorrect() - 1])
+        else wordToGuess.forEach { print(" " + if (hasGuessed.contains(it) || it == ' ') it else "_" + " ") }
+    }
+}
+
+fun getGuess(hasGuessed: HashSet<Char>): Char {
+    while (true) {
+        val guess = getUserInput("\nEnter Letter", charsRegex).first()
+        if (!hasGuessed.contains(guess)) return guess.also { hasGuessed.add(it) }
+    }
+}
+
+
+fun getUserInput(m: String, r: Regex): String = with(Scanner(System.`in`)) {
+    println(m)
+    val input = readLine().orEmpty()
+    reset()
+    if (input.matches(r)) input.toUpperCase() else getUserInput(m, r)
+}
+
+val hangMan = arrayOf(" O\n", " O\n |", " O\n\\|", " O\n\\|/", " O\n\\|/\n/", " O\n\\|/\n/ \\")
+val charsRegex = "^[a-zA-Z]\$".toRegex()
+fun wordRegex(minLength: Int, maxLength: Int) = (("^[a-zA-Z]{$minLength,$maxLength}$")).toRegex()

@@ -1,0 +1,16 @@
+Monty Hall
+
+private fun isSwitchingBeneficial(): Boolean {
+
+//Initializes an array of "doors", with none containing a prize, then placing a prize behind a random door
+val prizes = booleanArrayOf(false, false, false).apply { this[Random.nextInt(0, 3)] = true }
+
+//Choosing a door at random
+val chosenIndex = Random.nextInt(0, 3)
+
+//Showing a random "losing" door, making sure that it was not the door that was previously chosen.
+val shownIndex = prizes.indices.first { !prizes[it] && it != chosenIndex }
+
+//Return true if the changing doors would have been beneficial.
+return prizes[prizes.indices.first { it != shownIndex && it != chosenIndex }]
+}

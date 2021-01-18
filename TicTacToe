@@ -1,0 +1,57 @@
+data class TicTacToe(val autoPilot: Boolean) {
+
+    private enum class Player(val symbol: String) { Human("X"), PC("O"), Empty(" ") }
+
+    private fun Int.isOpen() = spaces[this] == Player.Empty
+    private fun countWinSpaces(n: Int, p: Player) = winCombos.firstOrNull { it.count { i -> spaces[i] == p } > n }
+    private fun didPCWin() = countWinSpaces(2, Player.PC) != null
+    private fun didHumanWin() = countWinSpaces(2, Player.Human) != null
+    private fun findWinningMove(p: Player) = countWinSpaces(1, p)?.firstOrNull { it.isOpen() }
+    private fun findOpenCorner() = corners.firstOrNull { it.isOpen() }
+    private fun findOpenSpace() = (1..9).first { it.isOpen() }
+    private val middle = 5
+    private val spaces = Array(10) { Player.Empty }
+    private val hasMoreMoves = { spaces.takeLast(9).contains(Player.Empty) && !didPCWin() && !didHumanWin() }
+    private var mover = Player.Human
+    private val corners = intArrayOf(1, 3, 7, 9)
+    private val winCombos = arrayOf(
+        intArrayOf(1, 4, 7),
+        intArrayOf(2, 5, 8),
+        intArrayOf(3, 6, 9),
+        intArrayOf(1, 2, 3),
+        intArrayOf(4, 5, 6),
+        intArrayOf(7, 8, 9),
+        intArrayOf(1, 5, 9),
+        intArrayOf(3, 5, 7)
+    )
+
+    private fun makeMove() {
+        spaces[if (autoPilot || mover == Player.PC) findBestMove() else promptUser()] = mover
+        if (mover == Player.PC) printResult()
+        mover = if (mover == Player.Human) Player.PC else Player.Human
+    }
+
+    private fun findBestMove() =
+        findWinningMove(Player.PC)
+            ?: findWinningMove(Player.Human)
+            ?: if (middle.isOpen()) middle else findOpenCorner() ?: findOpenSpace()
+
+    private fun promptUser(): Int = with(Scanner(System.`in`)) {
+        println("Enter Move")
+        val move = runCatching { nextInt() }.getOrNull() ?: -1
+        reset()
+        if (move < 1 || move > 9 || spaces[move] != Player.Empty) promptUser() else move
+    }
+
+    private fun printResult() {
+        println(spaces[1].symbol + " | " + spaces[2].symbol + " | " + spaces[3].symbol)
+        println(spaces[4].symbol + " | " + spaces[5].symbol + " | " + spaces[6].symbol)
+        println(spaces[7].symbol + " | " + spaces[8].symbol + " | " + spaces[9].symbol)
+        println()
+    }
+
+
+    companion object {
+        fun playGame(autoPilot: Boolean = true) = TicTacToe(autoPilot).apply { while (hasMoreMoves()) makeMove() }
+    }
+}
